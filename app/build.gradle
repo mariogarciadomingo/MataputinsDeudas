@@ -14,9 +14,9 @@ android {
         applicationId "com.example.mario.mataputinsdeudas"
         minSdkVersion 21
         targetSdkVersion 27
-        versionName '2.8'
+        versionName '2.9'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        versionNameSuffix 'OAlert'
+        versionNameSuffix 'Beta'
     }
     buildTypes {
         release {
