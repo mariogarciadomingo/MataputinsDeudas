@@ -78,8 +78,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
-                            android:minHeight="50px"
-                            android:minWidth="50px">
+                            android:minWidth="50px"
+                            android:minHeight="50px">
 
                             <TextView
                                 android:id="@+id/Usuario1"
@@ -102,8 +102,8 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_margin="3dp"
-                                android:layout_marginEnd="8dp"
                                 android:layout_marginTop="8dp"
+                                android:layout_marginEnd="8dp"
                                 android:layout_weight="1"
                                 android:text="@string/Conectando"
                                 android:textAlignment="viewEnd"
@@ -127,8 +127,8 @@
                                 android:id="@+id/AntU1"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginEnd="8dp"
                                 android:layout_marginTop="80dp"
+                                android:layout_marginEnd="8dp"
                                 android:visibility="visible"
                                 ads:layout_constraintEnd_toEndOf="parent"
                                 ads:layout_constraintTop_toTopOf="parent" />
@@ -246,8 +246,8 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_margin="3dp"
-                                android:layout_marginEnd="8dp"
                                 android:layout_marginTop="8dp"
+                                android:layout_marginEnd="8dp"
                                 android:layout_weight="1"
                                 android:text="@string/Conectando"
                                 android:textAlignment="viewEnd"
@@ -271,8 +271,8 @@
                                 android:id="@+id/antU2"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginEnd="8dp"
                                 android:layout_marginTop="80dp"
+                                android:layout_marginEnd="8dp"
                                 android:visibility="visible"
                                 ads:layout_constraintEnd_toEndOf="parent"
                                 ads:layout_constraintTop_toTopOf="parent" />
@@ -363,8 +363,7 @@
                             android:layout_height="100dp"
                             android:contentDescription="@string/Usuario"
                             android:scaleType="centerCrop"
-                            ads:srcCompat="@mipmap/ic_launcher_round"
-                            />
+                            ads:srcCompat="@mipmap/ic_launcher_round" />
 
                         <android.support.constraint.ConstraintLayout
                             android:layout_width="match_parent"
@@ -387,8 +386,8 @@
                                 android:id="@+id/antU3"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginEnd="8dp"
                                 android:layout_marginTop="80dp"
+                                android:layout_marginEnd="8dp"
                                 android:visibility="visible"
                                 ads:layout_constraintEnd_toEndOf="parent"
                                 ads:layout_constraintTop_toTopOf="parent" />
@@ -398,8 +397,8 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_margin="3dp"
-                                android:layout_marginEnd="8dp"
                                 android:layout_marginTop="8dp"
+                                android:layout_marginEnd="8dp"
                                 android:layout_weight="1"
                                 android:text="@string/Conectando"
                                 android:textAlignment="viewEnd"
@@ -530,8 +529,8 @@
                                 android:id="@+id/antU4"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginEnd="8dp"
                                 android:layout_marginTop="80dp"
+                                android:layout_marginEnd="8dp"
                                 android:visibility="visible"
                                 ads:layout_constraintEnd_toEndOf="parent"
                                 ads:layout_constraintTop_toTopOf="parent" />
@@ -557,8 +556,8 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_margin="3dp"
-                                android:layout_marginEnd="8dp"
                                 android:layout_marginTop="8dp"
+                                android:layout_marginEnd="8dp"
                                 android:layout_weight="1"
                                 android:text="@string/Conectando"
                                 android:textAlignment="viewEnd"
@@ -649,8 +648,8 @@
 
                             android:layout_weight="1"
                             android:background="#c8e1dfdf"
-                            android:paddingEnd="3dp"
                             android:paddingStart="3dp"
+                            android:paddingEnd="3dp"
                             android:text="@string/total"
                             android:textAlignment="viewEnd"
                             android:textColor="@color/common_google_signin_btn_text_dark_focused"
@@ -669,8 +668,8 @@
                             android:background="#c8e1dfdf"
 
 
-                            android:paddingEnd="3dp"
                             android:paddingStart="3dp"
+                            android:paddingEnd="3dp"
                             android:text="@string/Conectando"
                             android:textAlignment="textStart"
                             android:textSize="24sp"
@@ -701,8 +700,8 @@
                 android:layout_marginTop="8dp"
                 android:gravity="center_vertical"
                 android:padding="2dp"
-                android:paddingEnd="8dp"
                 android:paddingStart="8dp"
+                android:paddingEnd="8dp"
                 android:text="@string/Nombre"
                 android:textColor="@color/cardview_light_background"
                 android:textSize="30sp"
@@ -729,8 +728,8 @@
         style="@android:style/Widget.Material.Button.Borderless"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="49dp"
         android:layout_marginStart="49dp"
+        android:layout_marginEnd="49dp"
         android:background="@color/cardview_dark_background"
         android:text="@string/historial"
         android:textColor="@color/cardview_light_background"

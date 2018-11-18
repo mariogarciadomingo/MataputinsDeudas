@@ -9,15 +9,7 @@ public class deuda {
     String ImProducte;
 
 
-    String titol,preu,marca,fecha,id;
-
-    public String getMarca() {
-        return marca;
-    }
-
-    public void setMarca(String marca) {
-        this.marca = marca;
-    }
+    String titol, preu, marca, fecha, id;
 
     public deuda(String id, String imProducte, String titol, String preu, String marca, String fecha) {
         this.id = id;
@@ -25,8 +17,16 @@ public class deuda {
         this.titol = titol;
         this.preu = preu;
 
-        this.marca=marca;
-        this.fecha=fecha;
+        this.marca = marca;
+        this.fecha = fecha;
+    }
+
+    public String getMarca() {
+        return marca;
+    }
+
+    public void setMarca(String marca) {
+        this.marca = marca;
     }
 
     public String getId() {
@@ -68,8 +68,6 @@ public class deuda {
     public void setPreu(String preu) {
         this.preu = preu;
     }
-
-
 
 
 }

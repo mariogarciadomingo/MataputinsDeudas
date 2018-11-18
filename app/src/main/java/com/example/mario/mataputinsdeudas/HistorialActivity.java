@@ -30,29 +30,33 @@ import java.util.List;
 import java.util.Locale;
 
 public class HistorialActivity extends AppCompatActivity {
-    boolean programador = false;
-    private static final String TAG ="" ;
-    private RecyclerView rv;
-    private List<deuda> listDeudas,list;
-    FirebaseDatabase database ;
+    private static final String TAG = "";
     static DatabaseReference myRef;
-    @Nullable
-    private FirebaseUser user;
-    SharedPreferences preferences;
-    private FirebaseAuth mAuth;
     final String Anna = "anna@gmail.com";
     final String Laurita = "laurita@gmail.com";
     final String Lauron = "lauron@gmail.com";
     final String Mario = "mario@gmail.com";
     final String Blanca = "blanca@gmail.com";
+    boolean programador = false;
+    FirebaseDatabase database;
+    SharedPreferences preferences;
     String seleccionat;
     Spinner spiner;
     Button historial;
-
     ImageView fons;
     int color = Color.BLACK;
     String nom;
-    String [] usuarios;
+    String[] usuarios;
+    private RecyclerView rv;
+    private List<deuda> listDeudas, list;
+    @Nullable
+    private FirebaseUser user;
+    private FirebaseAuth mAuth;
+
+    public static void eliminar(@NonNull String id) {
+        myRef.child(id).removeValue();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,31 +73,38 @@ public class HistorialActivity extends AppCompatActivity {
         rv.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
         mAuth = FirebaseAuth.getInstance();
         user = mAuth.getCurrentUser();
-        if(user.getEmail().equals(Anna)){nom="Anna"; usuarios = new String[]{"Todos","Laurita","Lauron","Mario","Blanca"};
+        if (user.getEmail().equals(Anna)) {
+            nom = "Anna";
+            usuarios = new String[]{"Todos", "Laurita", "Lauron", "Mario", "Blanca"};
 
 
         }
-        if(user.getEmail().equals(Laurita)){nom="Laurita"; usuarios = new String[]{"Todos","Anna","Lauron","Mario","Blanca"};
-           }
-        if(user.getEmail().equals(Lauron)) {
+        if (user.getEmail().equals(Laurita)) {
+            nom = "Laurita";
+            usuarios = new String[]{"Todos", "Anna", "Lauron", "Mario", "Blanca"};
+        }
+        if (user.getEmail().equals(Lauron)) {
             nom = "Lauron";
-            usuarios = new String[]{"Todos","Laurita", "Anna", "Mario", "Blanca"};
+            usuarios = new String[]{"Todos", "Laurita", "Anna", "Mario", "Blanca"};
         }
-        if(user.getEmail().equals(Mario)){nom="Mario"; usuarios = new String[]{"Todos","Laurita","Lauron","Anna","Blanca"};
+        if (user.getEmail().equals(Mario)) {
+            nom = "Mario";
+            usuarios = new String[]{"Todos", "Laurita", "Lauron", "Anna", "Blanca"};
 
         }
-        if(user.getEmail().equals(Blanca)){nom="Blanca"; usuarios = new String[]{"Todos","Laurita","Lauron","Anna","Mario"};
+        if (user.getEmail().equals(Blanca)) {
+            nom = "Blanca";
+            usuarios = new String[]{"Todos", "Laurita", "Lauron", "Anna", "Mario"};
 
         }
         database = FirebaseDatabase.getInstance();
         String prog = "";
         historial = findViewById(R.id.btEliminarHistorial);
-        if(programador)
-        {
-            prog="programador/";
+        if (programador) {
+            prog = "programador/";
             historial.setText("Modo Programador");
         }
-        myRef = database.getReference(prog+"usuarios/"+ nom +"/historial");
+        myRef = database.getReference(prog + "usuarios/" + nom + "/historial");
 
         historial.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -112,12 +123,12 @@ public class HistorialActivity extends AppCompatActivity {
 
         inicialitzarAdaptador();
         spiner = findViewById(R.id.spinner);
-        ArrayAdapter adaptador = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_dropdown_item,usuarios);
+        ArrayAdapter adaptador = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, usuarios);
         spiner.setAdapter(adaptador);
         spiner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                seleccionat=usuarios[position];
+                seleccionat = usuarios[position];
 
                 inicialitzarAdaptador();
             }
@@ -129,88 +140,83 @@ public class HistorialActivity extends AppCompatActivity {
 
         });
     }
+
     @Override
     public void onBackPressed() {
         finish();
     }
+
     private void inicialitzarAdaptador()
 
     {
-        try{
+        try {
 
 
-        myRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                try {
+            myRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    try {
 
-                    boolean todos = false;
-                    listDeudas = new ArrayList<>();
-                    if (seleccionat.equals("Todos"))
-                        todos = true;
-                    for (DataSnapshot fechas : dataSnapshot.getChildren()) {
-                        String usuario = fechas.child("usuario").getValue(String.class);
-                        if (todos | seleccionat.equals(usuario)) {
-                            String id = fechas.getKey();
-                            String fecha = fechas.child("fecha").getValue(String.class);
-                            String titol = fechas.child("descripcion").getValue(String.class);
-                            Double valor = fechas.child("valor").getValue(Double.class);
-                            String imatge = "";
-                            if (usuario.equals("Anna")) {
-                                imatge = "anna.jpg";
-                            }
-                            if (usuario.equals("Blanca")) {
-                                imatge = "blanca.jpg";
-                            }
-                            if (usuario.equals("Laurita")) {
-                                imatge = "laurita.jpg";
-                            }
-                            if (usuario.equals("Lauron")) {
-                                imatge ="lauron.jpg";
-                            }
-                            if (usuario.equals("Mario")) {
-                                imatge = "mario.jpg";
-                            }
-                           // listDeudas.add(new deuda(id, imatge, titol, valor.toString() + " €", usuario, fecha));
-                            listDeudas.add(new deuda(id, imatge, titol,  NumberFormat.getCurrencyInstance(new Locale("es", "ES"))
-                                    .format(valor), usuario, fecha));
+                        boolean todos = false;
+                        listDeudas = new ArrayList<>();
+                        if (seleccionat.equals("Todos"))
+                            todos = true;
+                        for (DataSnapshot fechas : dataSnapshot.getChildren()) {
+                            String usuario = fechas.child("usuario").getValue(String.class);
+                            if (todos | seleccionat.equals(usuario)) {
+                                String id = fechas.getKey();
+                                String fecha = fechas.child("fecha").getValue(String.class);
+                                String titol = fechas.child("descripcion").getValue(String.class);
+                                Double valor = fechas.child("valor").getValue(Double.class);
+                                String imatge = "";
+                                if (usuario.equals("Anna")) {
+                                    imatge = "anna.jpg";
+                                }
+                                if (usuario.equals("Blanca")) {
+                                    imatge = "blanca.jpg";
+                                }
+                                if (usuario.equals("Laurita")) {
+                                    imatge = "laurita.jpg";
+                                }
+                                if (usuario.equals("Lauron")) {
+                                    imatge = "lauron.jpg";
+                                }
+                                if (usuario.equals("Mario")) {
+                                    imatge = "mario.jpg";
+                                }
+                                // listDeudas.add(new deuda(id, imatge, titol, valor.toString() + " €", usuario, fecha));
+                                listDeudas.add(new deuda(id, imatge, titol, NumberFormat.getCurrencyInstance(new Locale("es", "ES"))
+                                        .format(valor), usuario, fecha));
 
+                            }
                         }
+
+
+                        if (listDeudas.size() == 0) {
+                            listDeudas.add(new deuda("", "", "Historial Vacio", "", "", ""));
+                        }
+                        RVAdaptador adaptador = new RVAdaptador(listDeudas, Color.BLACK);
+                        rv.setHasFixedSize(true);
+                        rv.setNestedScrollingEnabled(false);
+                        rv.setItemViewCacheSize(20);
+                        rv.setDrawingCacheEnabled(true);
+                        rv.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_LOW);
+                        rv.setAdapter(adaptador);
+                    } catch (Exception e) {
+
+
                     }
-
-
-
-                if (listDeudas.size() == 0) {
-                    listDeudas.add(new deuda("", "", "Historial Vacio", "", "", ""));
                 }
-                RVAdaptador adaptador = new RVAdaptador(listDeudas,  Color.BLACK);
-                    rv.setHasFixedSize(true);
-                    rv.setNestedScrollingEnabled(false);
-                    rv.setItemViewCacheSize(20);
-                    rv.setDrawingCacheEnabled(true);
-                    rv.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_LOW);
-                rv.setAdapter(adaptador);
-            }catch (Exception e)
-                {
 
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
 
                 }
-        }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });}
-        catch(Exception e)
-        {
+            });
+        } catch (Exception e) {
 
         }
     }
-public static void eliminar(@NonNull String id)
-{
-    myRef.child(id).removeValue();
-}
 
 
 }

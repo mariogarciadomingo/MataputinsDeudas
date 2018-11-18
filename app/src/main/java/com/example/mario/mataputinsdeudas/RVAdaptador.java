@@ -30,6 +30,7 @@ public class RVAdaptador extends RecyclerView.Adapter<RVAdaptador.ImatgeViewHold
     int color;
     File dir;
     private int lastPosition = -1;
+
     public RVAdaptador(@NonNull List<deuda> deudaList, int color) {
 
         Collections.sort(deudaList, new Comparator<deuda>() {
@@ -40,60 +41,73 @@ public class RVAdaptador extends RecyclerView.Adapter<RVAdaptador.ImatgeViewHold
         Collections.reverse(deudaList);
         RVAdaptador.deudaList
                 = deudaList;
-        this.color=color;
+        this.color = color;
 
         dir = PrincipalActivity.dir;
+    }
+
+    static void Eliminar(String id) {
+        HistorialActivity.eliminar(id);
     }
 
     @NonNull
     @Override
     public ImatgeViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-       View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.fila,parent,false);
-       ImatgeViewHolder dvh = new ImatgeViewHolder(v);
-       return dvh;
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.fila, parent, false);
+        ImatgeViewHolder dvh = new ImatgeViewHolder(v);
+        return dvh;
     }
 
     @Override
     public void onBindViewHolder(ImatgeViewHolder holder, int position) {
         try {
             holder.ImProducte.setImageBitmap(BitmapFactory.decodeFile(dir + "/" + deudaList.get(position).getImProducte()));
-        }catch (Exception e){}
+        } catch (Exception e) {
+        }
         holder.titol.setText(deudaList.get(position).getTitol());
         holder.preu.setText(deudaList.get(position).getPreu());
         holder.titol.setTextColor(color);
         holder.fecha.setTextColor(color);
         holder.fecha.setText(deudaList.get(position).getFecha());
-        if(deudaList.get(position).getTitol().contains("Debes")){
+        if (deudaList.get(position).getTitol().contains("Debes")) {
             holder.preu.setTextColor(Color.RED);
-            holder.cv.setCardBackgroundColor(Color.argb(200,255, 102, 0));
+            holder.cv.setCardBackgroundColor(Color.argb(200, 255, 102, 0));
         }
-        if(deudaList.get(position).getTitol().contains("te debe")){
+        if (deudaList.get(position).getTitol().contains("te debe")) {
             holder.preu.setTextColor(Color.BLUE);
-            holder.cv.setCardBackgroundColor(Color.argb(200,51, 102, 255));
+            holder.cv.setCardBackgroundColor(Color.argb(200, 51, 102, 255));
         }
-        if(deudaList.get(position).getTitol().toLowerCase().contains("has pagado")){
+        if (deudaList.get(position).getTitol().toLowerCase().contains("has pagado")) {
             holder.preu.setTextColor(Color.BLUE);
-            holder.cv.setCardBackgroundColor(Color.argb(200,255, 204, 102));
+            holder.cv.setCardBackgroundColor(Color.argb(200, 255, 204, 102));
         }
-        if(deudaList.get(position).getTitol().contains("te ha pagado")){
-            holder.preu.setTextColor(Color.argb(200,0, 51, 0));
-            holder.cv.setCardBackgroundColor(Color.argb(200,51, 204, 51));
+        if (deudaList.get(position).getTitol().contains("te ha pagado")) {
+            holder.preu.setTextColor(Color.argb(200, 0, 51, 0));
+            holder.cv.setCardBackgroundColor(Color.argb(200, 51, 204, 51));
         }
         setAnimation(holder.itemView, position);
     }
-
-
 
     @Override
     public int getItemCount() {
         return deudaList.size();
     }
 
+    private void setAnimation(View viewToAnimate, int position) {
+        // If the bound view wasn't previously displayed on screen, it's animated
+        if (position > lastPosition) {
+            Animation animation = AnimationUtils.loadAnimation(context, android.R.anim.slide_in_left);
+            viewToAnimate.startAnimation(animation);
+            lastPosition = position;
+        }
+    }
+
     public static class ImatgeViewHolder extends RecyclerView.ViewHolder {
         CardView cv;
         ImageView ImProducte;
-        TextView titol,preu,fecha,id;
+        TextView titol, preu, fecha, id;
         Button eliminar;
+
         public ImatgeViewHolder(@NonNull View itemView) {
             super(itemView);
             eliminar = itemView.findViewById(R.id.btEliminar);
@@ -101,10 +115,10 @@ public class RVAdaptador extends RecyclerView.Adapter<RVAdaptador.ImatgeViewHold
             cv.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if(eliminar.getVisibility()==View.VISIBLE)
+                    if (eliminar.getVisibility() == View.VISIBLE)
                         eliminar.setVisibility(View.GONE);
                     else
-                    eliminar.setVisibility(View.VISIBLE);
+                        eliminar.setVisibility(View.VISIBLE);
                 }
             });
             eliminar.setOnClickListener(new View.OnClickListener() {
@@ -121,20 +135,6 @@ public class RVAdaptador extends RecyclerView.Adapter<RVAdaptador.ImatgeViewHold
             preu = itemView.findViewById(R.id.preuProducte);
             fecha = itemView.findViewById(R.id.Fecha);
 
-        }
-    }
-    static  void Eliminar(String id)
-    {
-        HistorialActivity.eliminar(id);
-    }
-    private void setAnimation(View viewToAnimate, int position)
-    {
-        // If the bound view wasn't previously displayed on screen, it's animated
-        if (position > lastPosition)
-        {
-            Animation animation = AnimationUtils.loadAnimation(context, android.R.anim.slide_in_left);
-            viewToAnimate.startAnimation(animation);
-            lastPosition = position;
         }
     }
 

@@ -1,4 +1,3 @@
-
 package com.example.mario.mataputinsdeudas;
 
 import android.content.Context;
@@ -22,18 +21,19 @@ import android.widget.TextView;
 import com.flask.colorpicker.OnColorChangedListener;
 
 public class PersonalizarActivity extends AppCompatActivity {
-    ImageView fons,ImTexto,ImMateriales,ImTu,Imel;
-    TextView tuNom, Usuario,total;
+    ImageView fons, ImTexto, ImMateriales, ImTu, Imel;
+    TextView tuNom, Usuario, total;
     LinearLayout LinearUsuario;
-    Switch swFotos,swUsuario1,swUsuario2,swUsuario3,swUsuario4,swTotal,swSilencio;
-    ConstraintLayout ColorText,ColorMateterials;
+    Switch swFotos, swUsuario1, swUsuario2, swUsuario3, swUsuario4, swTotal, swSilencio;
+    ConstraintLayout ColorText, ColorMateterials;
     SharedPreferences preferences;
-    com.flask.colorpicker.ColorPickerView colorPickerViewText,colorPickerViewMaterials;
-    Button Guardar,Ddescartar;
+    com.flask.colorpicker.ColorPickerView colorPickerViewText, colorPickerViewMaterials;
+    Button Guardar, Ddescartar;
     Context context;
     int colorTexto = 0;
     int colorMateriales = 0;
     boolean imagenes = true;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,14 +54,14 @@ public class PersonalizarActivity extends AppCompatActivity {
         Usuario.setTextColor(colorTexto);
         total = findViewById(R.id.PTotal1);
         total.setTextColor(Color.BLUE);
-        ImTu= findViewById(R.id.imtu2);
+        ImTu = findViewById(R.id.imtu2);
         ImTu.setImageDrawable(PrincipalActivity.Imtu.getDrawable());
-        Imel= findViewById(R.id.PImUsuario1);
+        Imel = findViewById(R.id.PImUsuario1);
         Imel.setImageDrawable(PrincipalActivity.ImUsuario1.getDrawable());
         colorPickerViewText = findViewById(R.id.color_picker_view);
         colorPickerViewMaterials = findViewById(R.id.color_picker_view_Mat);
-        colorPickerViewText.setInitialColor(colorTexto,true);
-        colorPickerViewMaterials.setInitialColor(colorMateriales,true);
+        colorPickerViewText.setInitialColor(colorTexto, true);
+        colorPickerViewMaterials.setInitialColor(colorMateriales, true);
         colorPickerViewText.setDensity(15);
         colorPickerViewMaterials.setDensity(15);
         colorPickerViewText.addOnColorChangedListener(new OnColorChangedListener() {
@@ -91,7 +91,7 @@ public class PersonalizarActivity extends AppCompatActivity {
         ImMateriales.setBackgroundColor(colorMateriales);
         LinearUsuario.setBackgroundColor(colorMateriales);
         String Pfondo = preferences.getString("fondo", "");
-        if(!imagenes){
+        if (!imagenes) {
             Imel.setVisibility(View.GONE);
         }
         swFotos.setChecked(imagenes);
@@ -114,19 +114,21 @@ public class PersonalizarActivity extends AppCompatActivity {
         swTotal.setChecked(preferences.getBoolean("TotalBool", true));
         swSilencio.setChecked(preferences.getBoolean("SilencioOA", false));
     }
+
     private void desarSharedPreferences() {
         SharedPreferences.Editor editor = preferences.edit();
-        editor.putInt("ColorTexto",colorTexto);
-        editor.putInt("ColorMateriales",colorMateriales);
-        editor.putBoolean("Imagenes",swFotos.isChecked());
-        editor.putBoolean("Usuario1Bool",swUsuario1.isChecked());
-        editor.putBoolean("Usuario2Bool",swUsuario2.isChecked());
-        editor.putBoolean("Usuario3Bool",swUsuario3.isChecked());
-        editor.putBoolean("Usuario4Bool",swUsuario4.isChecked());
-        editor.putBoolean("TotalBool",swTotal.isChecked());
-        editor.putBoolean("SilencioOA",swSilencio.isChecked());
+        editor.putInt("ColorTexto", colorTexto);
+        editor.putInt("ColorMateriales", colorMateriales);
+        editor.putBoolean("Imagenes", swFotos.isChecked());
+        editor.putBoolean("Usuario1Bool", swUsuario1.isChecked());
+        editor.putBoolean("Usuario2Bool", swUsuario2.isChecked());
+        editor.putBoolean("Usuario3Bool", swUsuario3.isChecked());
+        editor.putBoolean("Usuario4Bool", swUsuario4.isChecked());
+        editor.putBoolean("TotalBool", swTotal.isChecked());
+        editor.putBoolean("SilencioOA", swSilencio.isChecked());
         editor.commit();
     }
+
     private void inicialitzarComponents() {
         swFotos = findViewById(R.id.swFotos);
         swUsuario1 = findViewById(R.id.swUsu1);
@@ -135,42 +137,44 @@ public class PersonalizarActivity extends AppCompatActivity {
         swUsuario3 = findViewById(R.id.swUsu3);
         swUsuario4 = findViewById(R.id.swUsu4);
         swSilencio = findViewById(R.id.swSilencioOA);
-       ColorText = findViewById(R.id.ColorTextLayout);
-       ColorMateterials = findViewById(R.id.ColorMaterialLayout);
+        ColorText = findViewById(R.id.ColorTextLayout);
+        ColorMateterials = findViewById(R.id.ColorMaterialLayout);
         Guardar = findViewById(R.id.PGuardar);
         Guardar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(ColorText.getVisibility()==View.VISIBLE){
+                if (ColorText.getVisibility() == View.VISIBLE) {
                     colorTexto = colorPickerViewText.getSelectedColor();
                     ImTexto.setBackgroundColor(colorPickerViewText.getSelectedColor());
                     tuNom.setTextColor(colorPickerViewText.getSelectedColor());
                     Usuario.setTextColor(colorPickerViewText.getSelectedColor());
                     ColorText.setVisibility(View.GONE);
-                } else if(ColorMateterials.getVisibility()==View.VISIBLE){
+                } else if (ColorMateterials.getVisibility() == View.VISIBLE) {
                     colorMateriales = colorPickerViewMaterials.getSelectedColor();
-                    ImMateriales.setBackgroundColor( colorPickerViewMaterials.getSelectedColor());
-                    LinearUsuario.setBackgroundColor( colorPickerViewMaterials.getSelectedColor());
+                    ImMateriales.setBackgroundColor(colorPickerViewMaterials.getSelectedColor());
+                    LinearUsuario.setBackgroundColor(colorPickerViewMaterials.getSelectedColor());
                     ColorMateterials.setVisibility(View.GONE);
-                }else{
-                PrincipalActivity.DesarFireDisseny(colorTexto,colorMateriales,swUsuario1.isChecked(),swUsuario2.isChecked(),swUsuario3.isChecked(),swUsuario4.isChecked(),swTotal.isChecked(),swFotos.isChecked());
-                desarSharedPreferences();
-                finish();}
+                } else {
+                    PrincipalActivity.DesarFireDisseny(colorTexto, colorMateriales, swUsuario1.isChecked(), swUsuario2.isChecked(), swUsuario3.isChecked(), swUsuario4.isChecked(), swTotal.isChecked(), swFotos.isChecked());
+                    desarSharedPreferences();
+                    finish();
+                }
             }
         });
-        Ddescartar= findViewById(R.id.PCancelar);
+        Ddescartar = findViewById(R.id.PCancelar);
         Ddescartar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(ColorText.getVisibility()==View.VISIBLE){
+                if (ColorText.getVisibility() == View.VISIBLE) {
                     inicialitzarSharedPreferences();
                     ColorText.setVisibility(View.GONE);
-                }else  if(ColorMateterials.getVisibility()==View.VISIBLE){
+                } else if (ColorMateterials.getVisibility() == View.VISIBLE) {
                     inicialitzarSharedPreferences();
                     ColorMateterials.setVisibility(View.GONE);
-                }else{
+                } else {
 
-                    finish();}
+                    finish();
+                }
 
             }
         });
@@ -188,30 +192,33 @@ public class PersonalizarActivity extends AppCompatActivity {
         });
         ImMateriales.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {ColorMateterials.setVisibility(View.VISIBLE);}});
+            public void onClick(View v) {
+                ColorMateterials.setVisibility(View.VISIBLE);
+            }
+        });
 
         swFotos.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked)
+                if (isChecked)
                     Imel.setVisibility(View.VISIBLE);
                 else
                     Imel.setVisibility(View.GONE);
 
             }
         });
-       context = this;
+        context = this;
 
-        CompoundButton.OnCheckedChangeListener on= new CompoundButton.OnCheckedChangeListener() {
+        CompoundButton.OnCheckedChangeListener on = new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked){
+                if (isChecked) {
                     MediaPlayer mediaPlayer = MediaPlayer.create(context, R.raw.ao);
-                    mediaPlayer.start();}
-                else
-                {
+                    mediaPlayer.start();
+                } else {
                     MediaPlayer mediaPlayer = MediaPlayer.create(context, R.raw.deu);
-                    mediaPlayer.start();}
+                    mediaPlayer.start();
+                }
             }
         };
         inicialitzarSharedPreferences();
