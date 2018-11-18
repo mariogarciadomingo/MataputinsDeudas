@@ -1,7 +1,10 @@
 package com.example.mario.mataputinsdeudas;
 
+import android.Manifest;
 import android.animation.ValueAnimator;
 import android.app.ActivityOptions;
+import android.app.DownloadManager;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
@@ -12,8 +15,10 @@ import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -32,6 +37,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -49,34 +55,43 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+
+import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
-import java.security.Timestamp;
+import java.net.URL;
+import java.net.URLConnection;
 import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class PrincipalActivity extends AppCompatActivity {
 
+
+public class PrincipalActivity extends AppCompatActivity {
+    private static final int WRITE_REQUEST_CODE = 300;
+    private static final String TAG = PrincipalActivity.class.getSimpleName();
     boolean programador = false;
-    private static final String TAG = "2";
+
     static Button Endeudar1, Endeudar2, Endeudar3, Endeudar4, Perdonar1, Perdonar2, Perdonar3, Perdonar4, Historial;
     private FirebaseAuth mAuth;
     public static ImageView ImUsuario1, ImUsuario2, ImUsuario3, ImUsuario4, fons, Imtu,ImStatU1,ImStatU2,ImStatU3,ImStatU4;
     EditText EdDinero1, EdDinero2, EdDinero3, EdDinero4, Edescripcion1, Edescripcion2, Edescripcion3, Edescripcion4;
     public static TextView tot1, tot2, tot3, tot4, total,tot1ant,tot2ant,tot3ant,tot4ant;
     public static double total1, total2, total3, total4;
+    public ImageButton Btupdate;
     FirebaseDatabase database;
-    static DatabaseReference myRef, ref;
+    static DatabaseReference myRef, ref,versionref,conexions,historial;
     LinearLayout LinearUsuario1, LinearUsuario2, LinearUsuario3, LinearUsuario4,LinearUsurios;
     ConstraintLayout ConstrainUsuario1, ConstrainUsuario2, ConstrainUsuario3, ConstrainUsuario4, Fondo;
     @Nullable
@@ -93,7 +108,8 @@ public class PrincipalActivity extends AppCompatActivity {
     final String Mario = "mario@gmail.com";
     final String Blanca = "blanca@gmail.com";
     String token = "";
-
+    boolean versionAntigua=false;
+    String url="";
     @Nullable
     String Pfondo;
     public static TextView usuario1, usuario2, usuario3, usuario4, tu, titolTotal,moroso;
@@ -130,6 +146,9 @@ public class PrincipalActivity extends AppCompatActivity {
             carregarImatgesMemoria();}
         myRef = database.getReference(prog + "usuarios");
         ref = database.getReference(prog + "usuarios/" + nom);
+        versionref = database.getReference("version");
+        conexions = database.getReference("conexions");
+        historial = database.getReference("historial");
         try{ myRef.child(nom).child("version").setValue(context.getPackageManager()
                 .getPackageInfo(context.getPackageName(), 0).versionName);}
         catch (Exception e){}
@@ -138,15 +157,17 @@ public class PrincipalActivity extends AppCompatActivity {
         DateFormat dia = new SimpleDateFormat("dd ");
         DateFormat hora = new SimpleDateFormat("HH_mm_ss ");
 
-        try{ myRef.child(nom).child("Conexions").child(year.format(Calendar.getInstance().getTime())).child(mes.format(Calendar.getInstance().getTime())).child(dia.format(Calendar.getInstance().getTime())).child(hora.format(Calendar.getInstance().getTime())).setValue(Build.BRAND+" "+Build.MODEL);}
+        try{ conexions.child(nom).child(year.format(Calendar.getInstance().getTime())).child(mes.format(Calendar.getInstance().getTime())).child(dia.format(Calendar.getInstance().getTime())).child(hora.format(Calendar.getInstance().getTime())).setValue(Build.BRAND+" "+Build.MODEL+" vers: " + context.getPackageManager()
+                .getPackageInfo(context.getPackageName(), 0).versionName.toString());}
         catch (Exception e){}
-        if(nom.equals("Mario"))
+       /* if(nom.equals("Mario"))
         try{
             myRef.child("version").setValue(context.getPackageManager()
                 .getPackageInfo(context.getPackageName(), 0).versionName);}
-        catch (Exception e){}
+        catch (Exception e){}*/
         myRef.child(nom).child("token").setValue(token);
         gestorDatos();
+
         CambiarColor();
         CargarConfiguracion();
     }
@@ -229,6 +250,15 @@ public class PrincipalActivity extends AppCompatActivity {
     }
 
     private void OnClicks() {
+        Btupdate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DownloadData();
+            }
+
+        });
+
+
         swiperefresh.setOnRefreshListener(
                 new SwipeRefreshLayout.OnRefreshListener() {
                     @Override
@@ -441,6 +471,7 @@ public class PrincipalActivity extends AppCompatActivity {
     }
 
     private void FindViews() {
+        Btupdate =findViewById(R.id.UpdateBt);
         moroso = findViewById(R.id.txtMorosos);
         swiperefresh = findViewById(R.id.swiperefresh);
         Fondo = findViewById(R.id.fondo);
@@ -607,6 +638,7 @@ public class PrincipalActivity extends AppCompatActivity {
         {
             descarregarImatges();
         }
+        versionAntigua  = preferences.getBoolean("VersionAntigua", false);
         programador = preferences.getBoolean("Programador", false);
         total1 = Double.parseDouble(preferences.getString("total1", "0"));
         total2 = Double.parseDouble(preferences.getString("total2", "0"));
@@ -677,6 +709,7 @@ public class PrincipalActivity extends AppCompatActivity {
     }
 
     private void gestorDatos() {
+
         ref.addValueEventListener(new ValueEventListener() {
 
             @Override
@@ -757,7 +790,59 @@ public class PrincipalActivity extends AppCompatActivity {
                 }
                 else
                     moroso.setText("");
+                if(versionAntigua){
 
+                    Btupdate.setVisibility(View.VISIBLE);
+                    try{
+                        try {
+                            moroso.setText("Actualización Pendiente");
+                        }catch (Exception e){}}
+                    catch (Exception e){}
+                }
+                else
+                {
+                    Btupdate.setVisibility(View.GONE);
+                    Btupdate.setVisibility(View.GONE);
+                }
+
+
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                // Failed to read value
+                Log.w(TAG, "Failed to read value.", error.toException());
+            }
+        });
+        versionref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                try{
+                    SharedPreferences.Editor editor = preferences.edit();
+                    editor.putBoolean("VersionAntigua",(!dataSnapshot.child("code").getValue().toString().equals(context.getPackageManager()
+                            .getPackageInfo(context.getPackageName(), 0).versionName.toString())));
+                    editor.commit();
+
+
+                }
+                catch (Exception e){ Toast.makeText(context,"e",Toast.LENGTH_LONG);}
+
+                url=dataSnapshot.child("Url").getValue()+"";
+                inicializarSharedPreferences();
+                if(versionAntigua){
+
+                    Btupdate.setVisibility(View.VISIBLE);
+                    try {
+                        moroso.setText("Actualización Pendiente");
+                    }catch (Exception e){}
+
+                }
+                else
+                {
+
+                    Btupdate.setVisibility(View.GONE);
+                    Btupdate.setVisibility(View.GONE);
+                }
             }
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
@@ -855,19 +940,21 @@ public class PrincipalActivity extends AppCompatActivity {
                     myRef.child(nom).child("historial").child(id + usuarios[usuario]).child("usuario").setValue(usuarios[usuario]);
                     myRef.child(nom).child("historial").child(id + usuarios[usuario]).child("fecha").setValue(forFecha);
                     myRef.child(nom).child("historial").child(id + usuarios[usuario]).child("modelo").setValue(Build.BRAND+" "+Build.MODEL);
-                myRef.child(nom).child("historial").child(id + usuarios[usuario]).child("totalAnterior").setValue(total);
+                    myRef.child(nom).child("historial").child(id + usuarios[usuario]).child("totalAnterior").setValue(total);
+
                     myRef.child(usuarios[usuario]).child("historial").child(id + nom).child("descripcion").setValue("Debes a " + nom + " " +conceptoText);
                     myRef.child(usuarios[usuario]).child("historial").child(id + nom).child("valor").setValue(-Ddinero);
                     myRef.child(usuarios[usuario]).child("historial").child(id + nom).child("modelo").setValue(Build.BRAND+" "+Build.MODEL);
                     myRef.child(usuarios[usuario]).child("historial").child(id + nom).child("usuario").setValue(nom);
-                myRef.child(usuarios[usuario]).child("historial").child(id + nom).child("totalAnterior").setValue(total);
+                    myRef.child(usuarios[usuario]).child("historial").child(id + nom).child("totalAnterior").setValue(total);
                     myRef.child(usuarios[usuario]).child("historial").child(id + nom).child("fecha").setValue(forFecha);
-                    myRef.child("historial").child(id + nom + usuarios[usuario]).child("descripcion").setValue("deuda " + conceptoText + " a " + nom);
-                    myRef.child("historial").child(id + nom + usuarios[usuario]).child("valor").setValue(-Ddinero);
-                    myRef.child("historial").child(id + nom + usuarios[usuario]).child("usuario1").setValue(nom);
-                myRef.child("historial").child(id + nom + usuarios[usuario]).child("total1Anterior").setValue(total);
-                    myRef.child("historial").child(id + nom + usuarios[usuario]).child("usuario2").setValue(usuarios[usuario]);
-                    myRef.child("historial").child(id + nom + usuarios[usuario]).child("fecha").setValue(forFecha);
+
+                    historial.child(id + nom + usuarios[usuario]+"deuda").child("descripcion").setValue("deuda " + conceptoText + " a " + nom);
+                    historial.child(id + nom + usuarios[usuario]+"deuda").child("valor").setValue(-Ddinero);
+                    historial.child(id + nom + usuarios[usuario]+"deuda").child("usuario1").setValue(nom);
+                    historial.child(id + nom + usuarios[usuario]+"deuda").child("total1Anterior").setValue(total);
+                    historial.child(id + nom + usuarios[usuario]+"deuda").child("usuario2").setValue(usuarios[usuario]);
+                    historial.child(id + nom + usuarios[usuario]+"deuda").child("fecha").setValue(forFecha);
                 if (usuarios[usuario].equals("Anna")) {
                     MediaPlayer mediaPlayer = MediaPlayer.create(context, R.raw.itocabron);
                     mediaPlayer.start();
@@ -937,18 +1024,20 @@ public class PrincipalActivity extends AppCompatActivity {
                 myRef.child(nom).child("historial").child(id + usuarios[usuario]).child("usuario").setValue(usuarios[usuario]);
                 myRef.child(nom).child("historial").child(id + usuarios[usuario]).child("totalAnterior").setValue(total);
                 myRef.child(nom).child("historial").child(id + usuarios[usuario]).child("fecha").setValue(forFecha);
+
                 myRef.child(usuarios[usuario]).child("historial").child(id+nom).child("descripcion").setValue("Has pagado " + concepto.getText().toString() + " a " + nom);
                 myRef.child(usuarios[usuario]).child("historial").child(id+nom).child("valor").setValue(-Ddinero);
                 myRef.child(usuarios[usuario]).child("historial").child(id+nom).child("modelo").setValue(Build.BRAND+" "+Build.MODEL);
                 myRef.child(usuarios[usuario]).child("historial").child(id+nom).child("usuario").setValue(nom);
                 myRef.child(usuarios[usuario]).child("historial").child(id+nom).child("totalAnterior").setValue(total);
                 myRef.child(usuarios[usuario]).child("historial").child(id+nom).child("fecha").setValue(forFecha);
-                myRef.child("historial").child(id +nom+  usuarios[usuario]).child("descripcion").setValue("pago " + concepto.getText().toString() + " a " + nom);
-                myRef.child("historial").child(id +nom+  usuarios[usuario]).child("valor").setValue(-Ddinero);
-                myRef.child("historial").child(id +nom+  usuarios[usuario]).child("usuario1").setValue(nom);
-                myRef.child("historial").child(id +nom+  usuarios[usuario]).child("total1Anterior").setValue(total);
-                myRef.child("historial").child(id +nom+  usuarios[usuario]).child("usuario2").setValue(usuarios[usuario]);
-                myRef.child("historial").child(id +nom+  usuarios[usuario]).child("fecha").setValue(forFecha);
+
+                historial.child(id +nom+  usuarios[usuario] + "pagado").child("descripcion").setValue("pago " + concepto.getText().toString() + " a " + nom);
+                historial.child(id +nom+  usuarios[usuario]+ "pagado").child("valor").setValue(-Ddinero);
+                historial.child(id +nom+  usuarios[usuario]+ "pagado").child("usuario1").setValue(nom);
+                historial.child(id +nom+  usuarios[usuario]+ "pagado").child("total1Anterior").setValue(total);
+                historial.child(id +nom+  usuarios[usuario]+ "pagado").child("usuario2").setValue(usuarios[usuario]);
+                historial.child(id +nom+  usuarios[usuario]+ "pagado").child("fecha").setValue(forFecha);
                 dinero.setText("");
             }
         }
@@ -1110,5 +1199,14 @@ public class PrincipalActivity extends AppCompatActivity {
         }
         CambiarColor();
     }
+
+    private void DownloadData () {
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        startActivity(browserIntent);
+
+    }
+
+
+
 }
 

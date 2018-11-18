@@ -764,5 +764,16 @@
         ads:layout_constraintEnd_toEndOf="parent"
         ads:srcCompat="@drawable/group" />
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/UpdateBt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:clickable="true"
+        ads:layout_constraintBottom_toTopOf="@+id/btGrupal"
+        ads:layout_constraintEnd_toEndOf="parent"
+        ads:srcCompat="@drawable/update" />
+
 
 </android.support.constraint.ConstraintLayout>
