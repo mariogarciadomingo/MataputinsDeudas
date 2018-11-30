@@ -55,6 +55,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.sql.Struct;
 import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -77,7 +78,7 @@ public class PrincipalActivity extends AppCompatActivity {
     public static TextView usuario1, usuario2, usuario3, usuario4, tu, titolTotal, moroso;
     public static File dir;
     static Button Endeudar1, Endeudar2, Endeudar3, Endeudar4, Perdonar1, Perdonar2, Perdonar3, Perdonar4, Historial;
-    static DatabaseReference myRef, ref, versionref, conexions, historial;
+    static DatabaseReference myRef, ref, versionref, conexions, historial, dblog;
     static String nom;
     static Context context;
     final int PICK_IMAGE_REQUEST_PORFILE = 2;
@@ -124,6 +125,7 @@ public class PrincipalActivity extends AppCompatActivity {
                 myRef.child(nom).child(usuarios[usuario] + "_Anterior").setValue(Ddinero);
                 myRef.child(usuarios[usuario]).child(nom).setValue(-(total + Ddinero));
                 myRef.child(usuarios[usuario]).child(nom + "_Anterior").setValue(-Ddinero);
+
                 myRef.child(nom).child("historial").child(id + usuarios[usuario]).child("descripcion").setValue(usuarios[usuario] + " te debe " + conceptoText);
                 myRef.child(nom).child("historial").child(id + usuarios[usuario]).child("valor").setValue(Ddinero);
                 myRef.child(nom).child("historial").child(id + usuarios[usuario]).child("usuario").setValue(usuarios[usuario]);
@@ -220,6 +222,7 @@ public class PrincipalActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        try{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_principal);
 
@@ -230,13 +233,11 @@ public class PrincipalActivity extends AppCompatActivity {
             startActivity(new Intent(PrincipalActivity.this, LoginActivity.class));
             System.exit(0);
         }
-
         FindViews();
         OnClicks();
         String prog = "";
         carregarNoms();
         Declaraciones();
-
         inicializarSharedPreferences();
         if (programador) {
             prog = "programador/";
@@ -244,37 +245,33 @@ public class PrincipalActivity extends AppCompatActivity {
         } else {
             carregarImatgesMemoria();
         }
-        myRef = database.getReference(prog + "usuarios");
-        ref = database.getReference(prog + "usuarios/" + nom);
+        myRef = database.getReference(prog + "users");
+        ref = database.getReference(prog + "users/" + nom);
         versionref = database.getReference("version");
         conexions = database.getReference("conexions");
         historial = database.getReference("historial");
+        dblog = database.getReference();
         try {
             myRef.child(nom).child("version").setValue(context.getPackageManager()
                     .getPackageInfo(context.getPackageName(), 0).versionName);
         } catch (Exception e) {
+            SaveLog("ERROR: ",e.getMessage()+" "+Log.getStackTraceString(e));
         }
         DateFormat year = new SimpleDateFormat("yyyy ");
         DateFormat mes = new SimpleDateFormat("MM ");
         DateFormat dia = new SimpleDateFormat("dd ");
         DateFormat hora = new SimpleDateFormat("HH_mm_ss ");
-
         try {
             conexions.child(nom).child(year.format(Calendar.getInstance().getTime())).child(mes.format(Calendar.getInstance().getTime())).child(dia.format(Calendar.getInstance().getTime())).child(hora.format(Calendar.getInstance().getTime())).setValue(Build.BRAND + " " + Build.MODEL + " vers: " + context.getPackageManager()
                     .getPackageInfo(context.getPackageName(), 0).versionName.toString());
         } catch (Exception e) {
+            SaveLog("ERROR: ",e.getMessage()+" "+Log.getStackTraceString(e));
         }
-       /* if(nom.equals("Mario"))
-        try{
-            myRef.child("version").setValue(context.getPackageManager()
-                .getPackageInfo(context.getPackageName(), 0).versionName);}
-        catch (Exception e){}*/
         myRef.child(nom).child("token").setValue(token);
         gestorDatos();
-
         CambiarColor();
         CargarConfiguracion();
-    }
+    }catch (Exception e){SaveLog("ERROR: ",e.getMessage()+" "+Log.getStackTraceString(e));}}
 
     private void CargarConfiguracion() {
         boolean imatges = preferences.getBoolean("Imagenes", true);
@@ -297,57 +294,57 @@ public class PrincipalActivity extends AppCompatActivity {
     }
 
     private void Declaraciones() {
-        ContextWrapper wrapper = new ContextWrapper(getApplicationContext());
-        context = this;
-        if (!preferences.getBoolean("SilencioOA", false)) {
-            MediaPlayer mediaPlayer = MediaPlayer.create(context, R.raw.ao);
-            mediaPlayer.start();
-        }
-
-        dir = wrapper.getDir("Images", MODE_PRIVATE);
-
-
-        database = FirebaseDatabase.getInstance();
-        Pfondo = preferences.getString("fondo", "");
-        try {
-            if (Pfondo != "") {
-                BitmapFactory.Options options = new BitmapFactory.Options();
-                options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-                fons.setImageBitmap(BitmapFactory.decodeFile(Pfondo, options));
-            } else {
-                try {
-
-                    StorageReference storageRef = FirebaseStorage.getInstance().getReference();
-                    StorageReference pathReference = storageRef.child(tu.getText().toString()).child("fondo.jpg");
-                    final File dir = wrapper.getDir("Images", MODE_PRIVATE);
-                    final File fondo = new File(dir, tu.getText().toString() + "fondo" + ".jpg");
-                    swiperefresh.setRefreshing(true);
-                    pathReference.getFile(fondo).addOnCompleteListener(new OnCompleteListener<FileDownloadTask.TaskSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<FileDownloadTask.TaskSnapshot> task) {
-
-                            fons.setImageBitmap(BitmapFactory.decodeFile(fondo.getAbsolutePath()));
-                            SharedPreferences.Editor editor = preferences.edit();
-                            editor.putString("fondo", fondo.getAbsolutePath());
-                            editor.commit();
-                            swiperefresh.setRefreshing(false);
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            swiperefresh.setRefreshing(false);
-                        }
-                    });
-
-                } catch (Exception e) {
-
-                }
+            ContextWrapper wrapper = new ContextWrapper(getApplicationContext());
+            context = this;
+            if (!preferences.getBoolean("SilencioOA", false)) {
+                MediaPlayer mediaPlayer = MediaPlayer.create(context, R.raw.ao);
+                mediaPlayer.start();
             }
-        } catch (Exception e) {
-        }
-        Animation animation = AnimationUtils.loadAnimation(context, android.R.anim.slide_in_left);
-        LinearUsurios.startAnimation(animation);
 
+            dir = wrapper.getDir("Images", MODE_PRIVATE);
+
+
+            database = FirebaseDatabase.getInstance();
+            Pfondo = preferences.getString("fondo", "");
+            try {
+                if (Pfondo != "") {
+                    BitmapFactory.Options options = new BitmapFactory.Options();
+                    options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+                    fons.setImageBitmap(BitmapFactory.decodeFile(Pfondo, options));
+                } else {
+                    try {
+
+                        StorageReference storageRef = FirebaseStorage.getInstance().getReference();
+                        StorageReference pathReference = storageRef.child(tu.getText().toString()).child("fondo.jpg");
+                        final File dir = wrapper.getDir("Images", MODE_PRIVATE);
+                        final File fondo = new File(dir, tu.getText().toString() + "fondo" + ".jpg");
+                        swiperefresh.setRefreshing(true);
+                        pathReference.getFile(fondo).addOnCompleteListener(new OnCompleteListener<FileDownloadTask.TaskSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<FileDownloadTask.TaskSnapshot> task) {
+
+                                fons.setImageBitmap(BitmapFactory.decodeFile(fondo.getAbsolutePath()));
+                                SharedPreferences.Editor editor = preferences.edit();
+                                editor.putString("fondo", fondo.getAbsolutePath());
+                                editor.commit();
+                                swiperefresh.setRefreshing(false);
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                swiperefresh.setRefreshing(false);
+                            }
+                        });
+
+                    } catch (Exception e) {
+                        SaveLog("ERROR: ", e.getMessage() + " " + Log.getStackTraceString(e));
+                    }
+                }
+            } catch (Exception e) {
+                SaveLog("ERROR: ", e.getMessage() + " " + Log.getStackTraceString(e));
+            }
+            Animation animation = AnimationUtils.loadAnimation(context, android.R.anim.slide_in_left);
+            LinearUsurios.startAnimation(animation);
 
     }
 
@@ -406,6 +403,7 @@ public class PrincipalActivity extends AppCompatActivity {
                 try {
                     this.finalize();
                 } catch (Throwable throwable) {
+                    SaveLog("ERROR: ",throwable.getMessage()+" "+Log.getStackTraceString(throwable));
                     throwable.printStackTrace();
                 }
                 return false;
@@ -817,6 +815,14 @@ public class PrincipalActivity extends AppCompatActivity {
 
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                try{
+                    if(Boolean.parseBoolean(dataSnapshot.child("Bloqueado").getValue() + ""))
+                    {
+                        Intent intent = new Intent(PrincipalActivity.this,BannedActivity.class);
+                        startActivity(intent);
+                        finish();
+                    }
+                }catch (Exception e){ SaveLog("ERROR: ",e.getMessage()+" "+Log.getStackTraceString(e));}
                 try {
                     SharedPreferences.Editor editor = preferences.edit();
                     editor.putInt("ColorTexto", Integer.parseInt(dataSnapshot.child("Disseny").child("TextColor").getValue() + ""));
@@ -827,10 +833,12 @@ public class PrincipalActivity extends AppCompatActivity {
                     editor.putBoolean("Usuario4Bool", Boolean.parseBoolean(dataSnapshot.child("Disseny").child("Usuario4").getValue() + ""));
                     editor.putBoolean("TotalBool", Boolean.parseBoolean(dataSnapshot.child("Disseny").child("Total").getValue() + ""));
                     editor.putBoolean("Imagenes", Boolean.parseBoolean(dataSnapshot.child("Disseny").child("Imatges").getValue() + ""));
+                    editor.putBoolean("Contraseña", Boolean.parseBoolean(dataSnapshot.child("Contraseña").child("Activada").getValue() + ""));
                     editor.commit();
                     CambiarColor();
                     CargarConfiguracion();
                 } catch (Exception e) {
+                    SaveLog("ERROR: ",e.getMessage()+" "+Log.getStackTraceString(e));
                 }
                 int col = preferences.getInt("ColorMateriales", Color.WHITE);
 
@@ -889,6 +897,7 @@ public class PrincipalActivity extends AppCompatActivity {
                         descarregarImatges();
                     }
                 } catch (Exception e) {
+                    SaveLog("ERROR: ",e.getMessage()+" "+Log.getStackTraceString(e));
                 }
                 if (total1 + total2 + total3 + total4 < -10) {
                     moroso.setText("Empiezas a ser una persona morosa");
@@ -901,8 +910,10 @@ public class PrincipalActivity extends AppCompatActivity {
                         try {
                             moroso.setText("Actualización Pendiente");
                         } catch (Exception e) {
+                            SaveLog("ERROR: ",e.getMessage()+" "+Log.getStackTraceString(e));
                         }
                     } catch (Exception e) {
+                        SaveLog("ERROR: ",e.getMessage()+" "+Log.getStackTraceString(e));
                     }
                 } else {
                     Btupdate.setVisibility(View.GONE);
@@ -931,6 +942,7 @@ public class PrincipalActivity extends AppCompatActivity {
 
                 } catch (Exception e) {
                     Toast.makeText(context, "e", Toast.LENGTH_LONG);
+                    SaveLog("ERROR: ",e.getMessage()+" "+Log.getStackTraceString(e));
                 }
 
                 url = dataSnapshot.child("Url").getValue() + "";
@@ -941,6 +953,7 @@ public class PrincipalActivity extends AppCompatActivity {
                     try {
                         moroso.setText("Actualización Pendiente");
                     } catch (Exception e) {
+                        SaveLog("ERROR: ",e.getMessage()+" "+Log.getStackTraceString(e));
                     }
 
                 } else {
@@ -967,6 +980,7 @@ public class PrincipalActivity extends AppCompatActivity {
         } catch (Exception e) {
             temp = 0.00;
             TV.setTextColor(Color.GRAY);
+            SaveLog("ERROR: ",e.getMessage()+" "+Log.getStackTraceString(e));
         }
         TV.setText(NumberFormat.getCurrencyInstance(new Locale("es", "ES"))
                 .format(temp));
@@ -976,14 +990,14 @@ public class PrincipalActivity extends AppCompatActivity {
     private Double EstablirAnt(DataSnapshot total, TextView TV, int Usuario, ImageView IM, Double tot) {
         Double temp = 0.00;
         try {
-
-
+            if(total.child(usuarios[Usuario] + "_Anterior").getValue() != null){
             temp = (Double.parseDouble(total.child(usuarios[Usuario] + "_Anterior").getValue() + ""));
             TV.setText(NumberFormat.getCurrencyInstance(new Locale("es", "ES"))
                     .format(temp));
             TV.setTextColor(ColorNumeros(temp));
-            IM.setImageResource(EstablirFlecha(temp));
+            IM.setImageResource(EstablirFlecha(temp));}
         } catch (Exception e) {
+            SaveLog("ERROR: ",e.getMessage()+" "+Log.getStackTraceString(e));
 
         }
         return temp;
@@ -1108,6 +1122,7 @@ public class PrincipalActivity extends AppCompatActivity {
                     }
                 });
             } catch (IOException e) {
+                SaveLog("ERROR: ",e.getMessage()+" "+Log.getStackTraceString(e));
                 e.printStackTrace();
             }
         }
@@ -1141,6 +1156,7 @@ public class PrincipalActivity extends AppCompatActivity {
                 });
 
             } catch (IOException e) {
+                SaveLog("ERROR: ",e.getMessage()+" "+Log.getStackTraceString(e));
                 e.printStackTrace();
             }
         }
@@ -1176,6 +1192,7 @@ public class PrincipalActivity extends AppCompatActivity {
             });
 
         } catch (Exception e) {
+            SaveLog("ERROR: ",e.getMessage()+" "+Log.getStackTraceString(e));
         }
     }
 
@@ -1191,6 +1208,7 @@ public class PrincipalActivity extends AppCompatActivity {
                 fons.setImageBitmap(BitmapFactory.decodeFile(Pfondo, options));
             }
         } catch (Exception e) {
+            SaveLog("ERROR: ",e.getMessage()+" "+Log.getStackTraceString(e));
         }
         CambiarColor();
     }
@@ -1199,6 +1217,21 @@ public class PrincipalActivity extends AppCompatActivity {
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         startActivity(browserIntent);
 
+    }
+    private void SaveLog(String log,String error)
+    {
+        DateFormat year = new SimpleDateFormat("yyyy ");
+        DateFormat mes = new SimpleDateFormat("MM ");
+        DateFormat hora = new SimpleDateFormat("dd_HH_mm_ss ");
+        if(dblog!=null)
+        {
+            dblog.child("LOG").child(year.format(Calendar.getInstance().getTime())).child(mes.format(Calendar.getInstance().getTime())).child(hora.format(Calendar.getInstance().getTime())).setValue(log+" "+error);
+        }
+        if(error!="")
+        {
+            dblog.child("LOG_ERROR").child(year.format(Calendar.getInstance().getTime())).child(mes.format(Calendar.getInstance().getTime())).child(hora.format(Calendar.getInstance().getTime())).setValue(log+" "+error);
+
+        }
     }
 
 

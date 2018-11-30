@@ -104,7 +104,7 @@ public class HistorialActivity extends AppCompatActivity {
             prog = "programador/";
             historial.setText("Modo Programador");
         }
-        myRef = database.getReference(prog + "usuarios/" + nom + "/historial");
+        myRef = database.getReference(prog + "users/" + nom + "/historial");
 
         historial.setOnLongClickListener(new View.OnLongClickListener() {
             @Override

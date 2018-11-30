@@ -55,6 +55,15 @@
             android:background="@android:color/holo_purple"
             android:text="Mario Garcia" />
 
+        <EditText
+            android:id="@+id/LogMario"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:ems="10"
+            android:hint="Contraseña"
+            android:inputType="textPassword"
+            android:visibility="gone" />
+
         <Button
             android:id="@+id/btBlanca"
             android:layout_width="match_parent"

@@ -13,6 +13,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Switch;
@@ -23,6 +24,7 @@ import com.flask.colorpicker.OnColorChangedListener;
 public class PersonalizarActivity extends AppCompatActivity {
     ImageView fons, ImTexto, ImMateriales, ImTu, Imel;
     TextView tuNom, Usuario, total;
+
     LinearLayout LinearUsuario;
     Switch swFotos, swUsuario1, swUsuario2, swUsuario3, swUsuario4, swTotal, swSilencio;
     ConstraintLayout ColorText, ColorMateterials;
@@ -113,6 +115,7 @@ public class PersonalizarActivity extends AppCompatActivity {
         swUsuario4.setChecked(preferences.getBoolean("Usuario4Bool", true));
         swTotal.setChecked(preferences.getBoolean("TotalBool", true));
         swSilencio.setChecked(preferences.getBoolean("SilencioOA", false));
+
     }
 
     private void desarSharedPreferences() {
@@ -126,6 +129,7 @@ public class PersonalizarActivity extends AppCompatActivity {
         editor.putBoolean("Usuario4Bool", swUsuario4.isChecked());
         editor.putBoolean("TotalBool", swTotal.isChecked());
         editor.putBoolean("SilencioOA", swSilencio.isChecked());
+
         editor.commit();
     }
 
@@ -137,6 +141,7 @@ public class PersonalizarActivity extends AppCompatActivity {
         swUsuario3 = findViewById(R.id.swUsu3);
         swUsuario4 = findViewById(R.id.swUsu4);
         swSilencio = findViewById(R.id.swSilencioOA);
+
         ColorText = findViewById(R.id.ColorTextLayout);
         ColorMateterials = findViewById(R.id.ColorMaterialLayout);
         Guardar = findViewById(R.id.PGuardar);
@@ -159,6 +164,7 @@ public class PersonalizarActivity extends AppCompatActivity {
                     desarSharedPreferences();
                     finish();
                 }
+
             }
         });
         Ddescartar = findViewById(R.id.PCancelar);
@@ -207,6 +213,7 @@ public class PersonalizarActivity extends AppCompatActivity {
 
             }
         });
+
         context = this;
 
         CompoundButton.OnCheckedChangeListener on = new CompoundButton.OnCheckedChangeListener() {

@@ -348,6 +348,16 @@
                     android:textStyle="bold" />
 
             </LinearLayout>
+
+            <EditText
+                android:id="@+id/EtContreaseña"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:ems="10"
+                android:hint="Contraseña"
+                android:inputType="textPassword"
+                android:visibility="gone" />
         </LinearLayout>
     </ScrollView>
 
