@@ -62,6 +62,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -121,6 +122,7 @@ public class PrincipalActivity extends AppCompatActivity {
                 DateFormat dh = new SimpleDateFormat("yyyyMMddHHmmss ");
                 String id = dh.format(fecha);
                 String forFecha = df.format(fecha);
+                SaveLog("Log:" ,"Deuda de "+nom+" para "+usuarios[usuario]+" de "+total+"€");
                 myRef.child(nom).child(usuarios[usuario]).setValue(total + Ddinero);
                 myRef.child(nom).child(usuarios[usuario] + "_Anterior").setValue(Ddinero);
                 myRef.child(usuarios[usuario]).child(nom).setValue(-(total + Ddinero));
@@ -190,6 +192,7 @@ public class PrincipalActivity extends AppCompatActivity {
     }
 
     public static void DesarFireDisseny(int colorText, int colorMaterials, boolean usu1, boolean usu2, boolean usu3, boolean usu4, boolean total, boolean imatges) {
+        SaveLog("Log:","Cambio Diseño("+nom+")");
         myRef.child(nom).child("Disseny").child("TextColor").setValue(colorText);
         myRef.child(nom).child("Disseny").child("TextMaterials").setValue(colorMaterials);
         myRef.child(nom).child("Disseny").child("Usuario1").setValue(usu1);
@@ -201,7 +204,7 @@ public class PrincipalActivity extends AppCompatActivity {
     }
 
     public static void firmar(ArrayList<Integer> usuarios, EditText descripcion, EditText dinero) {
-
+        SaveLog("Log:","Deuda grupal ("+nom+")");
         String descripcio = descripcion.getText().toString();
         Double valor = Double.parseDouble(dinero.getText().toString()) / usuarios.size();
         for (int i = 0; i < usuarios.size(); i++) {
@@ -251,6 +254,7 @@ public class PrincipalActivity extends AppCompatActivity {
         conexions = database.getReference("conexions");
         historial = database.getReference("historial");
         dblog = database.getReference();
+        SaveLog("Log:","Session Iniciada "+nom);
         try {
             myRef.child(nom).child("version").setValue(context.getPackageManager()
                     .getPackageInfo(context.getPackageName(), 0).versionName);
@@ -362,6 +366,7 @@ public class PrincipalActivity extends AppCompatActivity {
                 new SwipeRefreshLayout.OnRefreshListener() {
                     @Override
                     public void onRefresh() {
+                        SaveLog("Log:","Refresh("+nom+")");
                         AnimarUsuarios(false, ConstrainUsuario1);
                         AnimarUsuarios(false, ConstrainUsuario2);
                         AnimarUsuarios(false, ConstrainUsuario3);
@@ -389,7 +394,7 @@ public class PrincipalActivity extends AppCompatActivity {
         tu.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-
+                SaveLog("Log:","Cerrando Sesión ("+nom+")");
                 SharedPreferences.Editor editor = preferences.edit();
 
                 editor.putString("fondo", "");
@@ -419,18 +424,21 @@ public class PrincipalActivity extends AppCompatActivity {
         btPersonalzar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                SaveLog("Log:"," Abrir Personalizar("+nom+")");
                 startActivity(new Intent(PrincipalActivity.this, PersonalizarActivity.class), ActivityOptions.makeScaleUpAnimation(btPersonalzar, 0, 0, 400, 400).toBundle());
             }
         });
         Historial.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                SaveLog("Log:","Abrir Historial ("+nom+")");
                 startActivity(new Intent(PrincipalActivity.this, HistorialActivity.class), ActivityOptions.makeScaleUpAnimation(Historial, 0, 0, 400, 400).toBundle());
             }
         });
         Imtu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                SaveLog("Log:","Cambiando Foto de perfil("+nom+")");
                 startActivityForResult(Intent.createChooser(new Intent().setType("image/*").setAction(Intent.ACTION_GET_CONTENT), "Selecciona una imagen"), PICK_IMAGE_REQUEST_PORFILE);
             }
         });
@@ -565,6 +573,7 @@ public class PrincipalActivity extends AppCompatActivity {
         btgrupal.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                SaveLog("Log:","Abrir Grupal("+nom+")");
                 startActivity(new Intent(PrincipalActivity.this, GrupalActivity.class), ActivityOptions.makeScaleUpAnimation(btgrupal, 0, 0, 400, 400).toBundle());
             }
         });
@@ -633,6 +642,7 @@ public class PrincipalActivity extends AppCompatActivity {
     }
 
     public void EscogerFondo() {
+        SaveLog("Log:","Cambiando Fondo ("+nom+")");
         startActivityForResult(Intent.createChooser(new Intent().setType("image/*").setAction(Intent.ACTION_GET_CONTENT), "Selecciona una imagen"), PICK_IMAGE_REQUEST);
     }
 
@@ -660,6 +670,7 @@ public class PrincipalActivity extends AppCompatActivity {
             nom = "Blanca";
             usuarios = new String[]{"Laurita", "Lauron", "Anna", "Mario"};
         }
+
         tu.setText(nom);
 
         usuario1.setText(usuarios[0]);
@@ -816,6 +827,7 @@ public class PrincipalActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 try{
+                try{
                     if(Boolean.parseBoolean(dataSnapshot.child("Bloqueado").getValue() + ""))
                     {
                         Intent intent = new Intent(PrincipalActivity.this,BannedActivity.class);
@@ -893,9 +905,14 @@ public class PrincipalActivity extends AppCompatActivity {
                 editor.putString("total1_Ant", EstablirAnt(dataSnapshot, tot1ant, 0, ImStatU1, total1) + "");
                 editor.commit();
                 try {
+                    if(dataSnapshot.child("foto").getValue()!=null){
                     if (!Boolean.parseBoolean(dataSnapshot.child("foto").getValue().toString())) {
                         descarregarImatges();
-                    }
+                    }}
+                    else
+                        {
+                            ref.child("foto").setValue(false);
+                        }
                 } catch (Exception e) {
                     SaveLog("ERROR: ",e.getMessage()+" "+Log.getStackTraceString(e));
                 }
@@ -918,11 +935,12 @@ public class PrincipalActivity extends AppCompatActivity {
                 } else {
                     Btupdate.setVisibility(View.GONE);
                     Btupdate.setVisibility(View.GONE);
+                    moroso.setText("");
+                }}catch (Exception e )
+                {
+                    SaveLog("ERROR: ",e.getMessage()+" "+Log.getStackTraceString(e));
                 }
-
-
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 // Failed to read value
@@ -975,8 +993,13 @@ public class PrincipalActivity extends AppCompatActivity {
     private Double EstablirTotal(DataSnapshot total, TextView TV, int Usuario) {
         Double temp;
         try {
+            if(total.child(usuarios[Usuario]).getValue()!=null){
             temp = Double.parseDouble(total.child(usuarios[Usuario]).getValue() + "");
-            TV.setTextColor(ColorNumeros(temp));
+            TV.setTextColor(ColorNumeros(temp));}
+            else{
+                temp = 0.00;
+                TV.setTextColor(Color.GRAY);
+            }
         } catch (Exception e) {
             temp = 0.00;
             TV.setTextColor(Color.GRAY);
@@ -1054,6 +1077,7 @@ public class PrincipalActivity extends AppCompatActivity {
                 myRef.child(nom).child(usuarios[usuario] + "_Anterior").setValue(-Ddinero);
                 myRef.child(usuarios[usuario]).child(nom).setValue(-(total - Ddinero));
                 myRef.child(usuarios[usuario]).child(nom + "_Anterior").setValue(+(Ddinero));
+                SaveLog("Log:", "Deuda Perdonada de "+nom+" para "+usuarios[usuario]+" de "+total+"€");
                 Date fecha = Calendar.getInstance().getTime();
                 DateFormat df = new SimpleDateFormat("yyyy.MM.dd  HH:mm:ss ");
                 DateFormat dh = new SimpleDateFormat("yyyyMMddHHmmss ");
@@ -1165,6 +1189,7 @@ public class PrincipalActivity extends AppCompatActivity {
     private void descarregarImatges() {
 
         try {
+            SaveLog("Log:","Descargando Imagenes ("+nom+")");
             StorageReference storageRef = FirebaseStorage.getInstance().getReference();
             StorageReference pathReference = storageRef.child("laurita.jpg");
             ContextWrapper wrapper = new ContextWrapper(getApplicationContext());
@@ -1214,24 +1239,26 @@ public class PrincipalActivity extends AppCompatActivity {
     }
 
     private void DownloadData() {
+        SaveLog("Log:","Descargando Actualización ("+nom+")");
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         startActivity(browserIntent);
 
     }
-    private void SaveLog(String log,String error)
+    public static void SaveLog(String log,String message)
     {
-        DateFormat year = new SimpleDateFormat("yyyy ");
-        DateFormat mes = new SimpleDateFormat("MM ");
-        DateFormat hora = new SimpleDateFormat("dd_HH_mm_ss ");
+        DateFormat df = new SimpleDateFormat("yyyy.MM.dd  HH:mm:ss ");
+        DateFormat hora = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss ");
+        String forFecha = df.format(Calendar.getInstance().getTime());
         if(dblog!=null)
         {
-            dblog.child("LOG").child(year.format(Calendar.getInstance().getTime())).child(mes.format(Calendar.getInstance().getTime())).child(hora.format(Calendar.getInstance().getTime())).setValue(log+" "+error);
+            try{
+            dblog.child("LOG").child(hora.format(Calendar.getInstance().getTime())).child("Titulo").setValue(log + " "+ nom +", Version: "+context.getPackageManager()
+                    .getPackageInfo(context.getPackageName(), 0).versionName);}
+                    catch (Exception e){dblog.child("LOG").child(hora.format(Calendar.getInstance().getTime())).child("Titulo").setValue(log + " "+ nom);}
+            dblog.child("LOG").child(hora.format(Calendar.getInstance().getTime())).child("Mensaje").setValue(message);
+            dblog.child("LOG").child(hora.format(Calendar.getInstance().getTime())).child("Fecha").setValue(forFecha);
         }
-        if(error!="")
-        {
-            dblog.child("LOG_ERROR").child(year.format(Calendar.getInstance().getTime())).child(mes.format(Calendar.getInstance().getTime())).child(hora.format(Calendar.getInstance().getTime())).setValue(log+" "+error);
 
-        }
     }
 
 

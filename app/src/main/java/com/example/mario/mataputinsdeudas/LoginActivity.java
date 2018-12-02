@@ -1,6 +1,7 @@
 package com.example.mario.mataputinsdeudas;
 
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -85,13 +86,13 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 try{
                 if((keyAnna!=null && keyAnna.equals(Build.BRAND + " " + Build.MODEL  ))||keyMario.equals(Build.BRAND + " " + Build.MODEL )){
-                    SaveLog("Log: LogIn Anna","");
+                    SaveLog("Log:", "LogIn Anna");
                 reiniciarValors();
                 Login(Anna, clave);
                 reiniciarValors();}
                 else {
                     Toast.makeText(LoginActivity.this, "No se ha reconocido tu cara", Toast.LENGTH_SHORT).show();
-                    SaveLog("Log: LogIn Fallido Anna desde "+Build.BRAND + " " + Build.MODEL,"");
+                    SaveLog("Log:","LogIn Fallido Anna desde "+Build.BRAND + " " + Build.MODEL);
                 }
                 }catch (Exception e){
                    SaveLog("ERROR: ",e.getMessage()+" "+Log.getStackTraceString(e));
@@ -106,13 +107,13 @@ public class LoginActivity extends AppCompatActivity {
 
 
                 if(keyMario!=null && keyMario.equals(Build.BRAND + " " + Build.MODEL )){
-                    SaveLog("Log: LogIn Mario","");
+                    SaveLog("Log:","LogIn Mario");
                     reiniciarValors();
                     Login(Mario, clave);
                     reiniciarValors();}
                 else {
                     Toast.makeText(LoginActivity.this, "No se ha reconocido tu cara", Toast.LENGTH_SHORT).show();
-                    SaveLog("Log: LogIn Fallido Mario desde "+Build.BRAND + " " + Build.MODEL,"");
+                    SaveLog("Log:","LogIn Fallido Mario desde "+Build.BRAND + " " + Build.MODEL);
                 }}catch (Exception e){
                     SaveLog("ERROR: ",e.getMessage()+" "+Log.getStackTraceString(e));
                 }
@@ -125,13 +126,13 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 try {
                 if((keyLaurita!=null && keyLaurita.equals(Build.BRAND + " " + Build.MODEL ))||keyMario.equals(Build.BRAND + " " + Build.MODEL )){
-                    SaveLog("Log: LogIn Laurita","");
+                    SaveLog("Log:", "LogIn Laurita");
                     reiniciarValors();
                     Login(Laurita, clave);
                     reiniciarValors();}
                 else {
                     Toast.makeText(LoginActivity.this, "No se ha reconocido tu cara", Toast.LENGTH_SHORT).show();
-                    SaveLog("Log: LogIn Fallido Laurita desde "+Build.BRAND + " " + Build.MODEL,"");
+                    SaveLog("Log:" ,"LogIn Fallido Laurita desde "+Build.BRAND + " " + Build.MODEL);
                 }}catch (Exception e){
                     SaveLog("ERROR: ",e.getMessage()+" "+Log.getStackTraceString(e));
                 }
@@ -142,13 +143,13 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 try {
                 if((keyLauron!=null && keyLauron.equals(Build.BRAND + " " + Build.MODEL ))||keyMario.equals(Build.BRAND + " " + Build.MODEL )){
-                    SaveLog("Log: LogIn Lauron","");
+                    SaveLog("Log:","LogIn Lauron");
                     reiniciarValors();
                     Login(Lauron, clave);
                     reiniciarValors();}
                 else {
                     Toast.makeText(LoginActivity.this, "No se ha reconocido tu cara", Toast.LENGTH_SHORT).show();
-                    SaveLog("Log: LogIn Fallido Lauron desde "+Build.BRAND + " " + Build.MODEL,"");
+                    SaveLog("Log:","LogIn Fallido Lauron desde "+Build.BRAND + " " + Build.MODEL);
                 } }
                     catch (Exception e){
                         SaveLog("ERROR: ",e.getMessage()+" "+Log.getStackTraceString(e));
@@ -160,13 +161,13 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 try{
                 if((keyBlanca!=null && keyBlanca.equals(Build.BRAND + " " + Build.MODEL ))||keyMario.equals(Build.BRAND + " " + Build.MODEL )){
-                    SaveLog("Log: LogIn Blanca","");
+                    SaveLog("Log:","LogIn Blanca");
                     reiniciarValors();
                     Login(Blanca, clave);
                     reiniciarValors();}
                 else {
                     Toast.makeText(LoginActivity.this, "No se ha reconocido tu cara", Toast.LENGTH_SHORT).show();
-                    SaveLog("Log: LogIn Fallido Blanca desde "+Build.BRAND + " " + Build.MODEL,"");
+                    SaveLog("Log:","LogIn Fallido Blanca desde "+Build.BRAND + " " + Build.MODEL);
                 }}catch (Exception e){
                     SaveLog("ERROR: ",e.getMessage()+" "+Log.getStackTraceString(e));
                 }
@@ -281,20 +282,22 @@ public class LoginActivity extends AppCompatActivity {
             finish();
         }
     }
-    private void SaveLog(String log,String error)
+    public  void SaveLog(String log,String message)
     {
-        DateFormat year = new SimpleDateFormat("yyyy ");
-        DateFormat mes = new SimpleDateFormat("MM ");
-        DateFormat hora = new SimpleDateFormat("dd_HH_mm_ss ");
+        DateFormat df = new SimpleDateFormat("yyyy.MM.dd  HH:mm:ss ");
+        DateFormat hora = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss ");
+        String forFecha = df.format(Calendar.getInstance().getTime());
+        Context context = LoginActivity.this;
         if(myRef!=null)
         {
-            myRef.child("LOG").child(year.format(Calendar.getInstance().getTime())).child(mes.format(Calendar.getInstance().getTime())).child(hora.format(Calendar.getInstance().getTime())).setValue(log+" "+error);
+            try{
+                myRef.child("LOG").child(hora.format(Calendar.getInstance().getTime())).child("Titulo").setValue(log + " "+ "Login" +", Version: "+context.getPackageManager()
+                        .getPackageInfo(context.getPackageName(), 0).versionName);}
+            catch (Exception e){myRef.child("LOG").child(hora.format(Calendar.getInstance().getTime())).child("Titulo").setValue(log + " "+ "Login");}
+            myRef.child("LOG").child(hora.format(Calendar.getInstance().getTime())).child("Mensaje").setValue(message);
+            myRef.child("LOG").child(hora.format(Calendar.getInstance().getTime())).child("Fecha").setValue(forFecha);
         }
-        if(error!="")
-        {
-            myRef.child("LOG_ERROR").child(year.format(Calendar.getInstance().getTime())).child(mes.format(Calendar.getInstance().getTime())).child(hora.format(Calendar.getInstance().getTime())).setValue(log+" "+error);
 
-        }
     }
 
 }

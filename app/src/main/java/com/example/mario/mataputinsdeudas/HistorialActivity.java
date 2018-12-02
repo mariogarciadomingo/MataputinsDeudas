@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -31,7 +32,7 @@ import java.util.Locale;
 
 public class HistorialActivity extends AppCompatActivity {
     private static final String TAG = "";
-    static DatabaseReference myRef;
+    static DatabaseReference myRef,ref;
     final String Anna = "anna@gmail.com";
     final String Laurita = "laurita@gmail.com";
     final String Lauron = "lauron@gmail.com";
@@ -40,7 +41,7 @@ public class HistorialActivity extends AppCompatActivity {
     boolean programador = false;
     FirebaseDatabase database;
     SharedPreferences preferences;
-    String seleccionat;
+    String seleccionat = "Todos";
     Spinner spiner;
     Button historial;
     ImageView fons;
@@ -76,8 +77,6 @@ public class HistorialActivity extends AppCompatActivity {
         if (user.getEmail().equals(Anna)) {
             nom = "Anna";
             usuarios = new String[]{"Todos", "Laurita", "Lauron", "Mario", "Blanca"};
-
-
         }
         if (user.getEmail().equals(Laurita)) {
             nom = "Laurita";
@@ -89,7 +88,7 @@ public class HistorialActivity extends AppCompatActivity {
         }
         if (user.getEmail().equals(Mario)) {
             nom = "Mario";
-            usuarios = new String[]{"Todos", "Laurita", "Lauron", "Anna", "Blanca"};
+            usuarios = new String[]{"Todos", "Laurita", "Lauron", "Anna", "Blanca","Log"};
 
         }
         if (user.getEmail().equals(Blanca)) {
@@ -129,8 +128,13 @@ public class HistorialActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
                 seleccionat = usuarios[position];
-
+                if(seleccionat.equals("Log"))
+                {
+                    inicialitzarAdaptadorLog();
+                }
+                else {
                 inicialitzarAdaptador();
+                }
             }
 
             @Override
@@ -156,7 +160,7 @@ public class HistorialActivity extends AppCompatActivity {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     try {
-
+                        if (!seleccionat.equals("Log") && !seleccionat.equals("Errores")){
                         boolean todos = false;
                         listDeudas = new ArrayList<>();
                         if (seleccionat.equals("Todos"))
@@ -201,9 +205,59 @@ public class HistorialActivity extends AppCompatActivity {
                         rv.setItemViewCacheSize(20);
                         rv.setDrawingCacheEnabled(true);
                         rv.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_LOW);
-                        rv.setAdapter(adaptador);
+                        rv.setAdapter(adaptador);}
                     } catch (Exception e) {
 
+                        PrincipalActivity.SaveLog("ERROR: ",e.getMessage()+" "+Log.getStackTraceString(e));
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+        } catch (Exception e) {
+            PrincipalActivity.SaveLog("ERROR: ",e.getMessage()+" "+Log.getStackTraceString(e));
+        }
+    }
+    private void inicialitzarAdaptadorLog()
+
+    {
+        try {
+
+            ref = database.getReference("LOG");
+            ref.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    try {
+                        if(seleccionat.equals("Log")){
+                        boolean todos = false;
+                        listDeudas = new ArrayList<>();
+
+                        for (DataSnapshot fechas : dataSnapshot.getChildren()) {
+                            if(fechas.child("Titulo").exists()){
+                            String titol = fechas.child("Titulo").getValue(String.class);
+                            String missatge = fechas.child("Mensaje").getValue(String.class);
+                            String fecha = fechas.child("Fecha").getValue(String.class);
+                            listDeudas.add(new deuda(missatge, "", titol, "", "", fecha));}
+
+                        }
+
+
+
+                        if (listDeudas.size() == 0) {
+                            listDeudas.add(new deuda("", "", "Log Vacio", "", "", ""));
+                        }
+                        RVAdaptadorLog adaptador = new RVAdaptadorLog(listDeudas, Color.BLACK);
+                        rv.setHasFixedSize(true);
+                        rv.setNestedScrollingEnabled(false);
+                        rv.setItemViewCacheSize(20);
+                        rv.setDrawingCacheEnabled(true);
+                        rv.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_LOW);
+                        rv.setAdapter(adaptador);}
+                    } catch (Exception e) {
+                        PrincipalActivity.SaveLog("ERROR: ",e.getMessage()+" "+Log.getStackTraceString(e));
 
                     }
                 }
@@ -214,9 +268,11 @@ public class HistorialActivity extends AppCompatActivity {
                 }
             });
         } catch (Exception e) {
-
+            PrincipalActivity.SaveLog("ERROR: ",e.getMessage()+" "+Log.getStackTraceString(e));
         }
     }
+
+
 
 
 }

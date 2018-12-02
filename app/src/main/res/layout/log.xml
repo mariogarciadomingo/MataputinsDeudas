@@ -20,16 +20,19 @@
 
         <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="90dp">
+            android:layout_height="wrap_content">
 
-            <ImageView
-                android:id="@+id/ImProducte"
-                android:layout_width="90dp"
-                android:layout_height="90dp"
-                android:adjustViewBounds="false"
-                android:scaleType="centerInside"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
+            <TextView
+                android:id="@+id/LogTittle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="TextView"
+                android:textAlignment="center"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
@@ -37,35 +40,28 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_margin="3dp"
-                android:maxLines="3"
-                android:text="titolProducte"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
                 android:textColor="@android:color/black"
-                android:textSize="18sp"
+                android:textSize="12sp"
+                android:typeface="monospace"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/ImProducte"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/preuProducte"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="3dp"
-                android:layout_marginBottom="3dp"
-                android:text="EUR 543"
-                android:textColor="@android:color/black"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/LogTittle" />
 
             <TextView
                 android:id="@+id/Fecha"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="20dp"
                 android:layout_margin="3dp"
+                android:layout_marginEnd="5dp"
+                android:layout_marginBottom="8dp"
                 android:text="10-06-1998"
+                android:textAlignment="viewEnd"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/ImProducte" />
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/LogMessage" />
 
             <Button
                 android:id="@+id/btEliminar"

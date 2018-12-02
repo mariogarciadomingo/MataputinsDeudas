@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -62,8 +63,7 @@ public class RVAdaptador extends RecyclerView.Adapter<RVAdaptador.ImatgeViewHold
     public void onBindViewHolder(ImatgeViewHolder holder, int position) {
         try {
             holder.ImProducte.setImageBitmap(BitmapFactory.decodeFile(dir + "/" + deudaList.get(position).getImProducte()));
-        } catch (Exception e) {
-        }
+
         holder.titol.setText(deudaList.get(position).getTitol());
         holder.preu.setText(deudaList.get(position).getPreu());
         holder.titol.setTextColor(color);
@@ -86,6 +86,9 @@ public class RVAdaptador extends RecyclerView.Adapter<RVAdaptador.ImatgeViewHold
             holder.cv.setCardBackgroundColor(Color.argb(200, 51, 204, 51));
         }
         setAnimation(holder.itemView, position);
+        } catch (Exception e) {
+            PrincipalActivity.SaveLog("ERROR: ",e.getMessage()+" "+Log.getStackTraceString(e));
+        }
     }
 
     @Override
@@ -131,7 +134,7 @@ public class RVAdaptador extends RecyclerView.Adapter<RVAdaptador.ImatgeViewHold
 
             ImProducte = itemView.findViewById(R.id.ImProducte);
 
-            titol = itemView.findViewById(R.id.titolProducte);
+            titol = itemView.findViewById(R.id.LogMessage);
             preu = itemView.findViewById(R.id.preuProducte);
             fecha = itemView.findViewById(R.id.Fecha);
 
